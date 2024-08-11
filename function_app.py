@@ -3,8 +3,8 @@ import azure.functions as func
 
 app = func.FunctionApp()
 
-@app.schedule(schedule="", arg_name="myTimer", run_on_startup=True,
-              use_monitor=False) 
+@app.function_name(name="findAlcoholScheduled")
+@app.timer_trigger(schedule="0 30 9 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False) 
 def timer_trigger(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
         logging.info('The timer is past due!')
