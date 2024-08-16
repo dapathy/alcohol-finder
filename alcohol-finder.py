@@ -1,10 +1,11 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import googlemaps
 
 from productLocation import ProductLocation
 
-googleMapsApiKey = ""
+googleMapsApiKey = os.environ['GOOGLE_MAPS_API_KEY']
 
 def establishSession():
     url = "http://www.oregonliquorsearch.com"
