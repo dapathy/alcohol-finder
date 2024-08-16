@@ -40,10 +40,3 @@ def queryProduct(sessionId, itemCode):
         quantity = row.select_one('td:nth-of-type(7)').text.strip()
         locations.append(ProductLocation(city, address, zip, quantity))
     return locations
-
-itemCode = "99900607575"
-sessionId = "bb3d2f2f1228dbb5655ee4c2b4b7"
-origin = "229 S Seymour St, Portland, OR 97239"
-# sessionId = establishSession()
-locations = queryProduct(sessionId, itemCode)
-distances = getDistanceMatrix(origin, locations)
