@@ -14,6 +14,6 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
     origin = os.environ['ORIGIN_ADDRESS']
 
 
-    sessionId = alcolholFinder.establishSession()
-    locations = alcolholFinder.queryProduct(sessionId, itemCode)
+    alcolholFinder.establishSession()
+    locations = alcolholFinder.queryProduct(itemCode)
     distances = alcolholFinder.getDistanceMatrix(origin, locations)
