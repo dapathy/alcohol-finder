@@ -33,8 +33,8 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
 
 def sendEmail(email_content):
     sendgridClient = sendgrid.SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
-    fromAddress = sendgrid.helpers.mail.Email(os.environ['SENDGRID_EMAIL_ADDRESS'])
-    toAddress = sendgrid.helpers.mail.To(os.environ['SENDGRID_EMAIL_ADDRESS'])
+    fromAddress = sendgrid.helpers.mail.Email(os.environ['SENDGRID_FROM_ADDRESS'])
+    toAddress = sendgrid.helpers.mail.To(os.environ['SENDGRID_TO_ADDRESS'])
     subject = "Alcohol Finder Results"
     content = sendgrid.helpers.mail.Content("text/plain", email_content)
     mail = sendgrid.helpers.mail.Mail(fromAddress, toAddress, subject, content)
