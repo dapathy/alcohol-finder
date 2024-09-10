@@ -32,9 +32,13 @@ def getDistanceMatrix(origin, destinations):
 
 def queryProduct(itemCode):
     url = f"http://www.oregonliquorsearch.com/servlet/FrontController?radiusSearchParam=0&productSearchParam={itemCode}&locationSearchParam=portland&btnSearch=Search&view=global&action=search"
-    # TODO: look into increasing page size
     response = session.get(url, allow_redirects=True)
     logging.info(f"Query response status code: {response.status_code}")
+
+    # Increase page size
+    url = f"http://www.oregonliquorsearch.com/servlet/FrontController?view=productdetails&action=pagechange&itemCode=6075B&newItemCode={itemCode}&productRowNum=1&column=City&pageSize=100"
+    response = session.get(url, allow_redirects=True)
+    logging.info(f"Page size response status code: {response.status_code}")
 
     soup = BeautifulSoup(response.text, 'html.parser')
     locations = []
