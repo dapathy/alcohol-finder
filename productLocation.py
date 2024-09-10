@@ -7,3 +7,4 @@ class ProductLocation(object):
         self.phoneNumber = phoneNumber
         self.distanceInFeet = None
         self.timeInSeconds = None
+        self.timeWithTrafficInSeconds = None

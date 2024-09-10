@@ -19,13 +19,16 @@ def establishSession():
 def getDistanceMatrix(origin, destinations):
     mapsApi = googlemaps.Client(key=googleMapsApiKey)
     destinationAddresses = map(lambda x: f'{x.address}, {x.zip}', destinations) # TODO: include city?
-    matrix = mapsApi.distance_matrix(origin, list(destinationAddresses), mode="driving", units="imperial")
+    matrix = mapsApi.distance_matrix(origin, list(destinationAddresses), mode="driving", units="imperial", departure_time="now")
     distances = matrix["rows"][0]["elements"]
 
     for i in range(len(distances)):
         if distances[i]["status"] == "OK":
             destinations[i].distanceInFeet = distances[i]["distance"]["value"]
             destinations[i].timeInSeconds = distances[i]["duration"]["value"]
+            destinations[i].timeWithTrafficInSeconds = distances[i]["duration_in_traffic"]["value"]
+        else:
+            logging.warning(f"Distance matrix status: {distances[i]['status']} for {destinations[i].address}")
 
     sortedDistances = sorted(destinations, key=lambda x: (x.timeInSeconds is None, x.timeInSeconds))
     return sortedDistances
