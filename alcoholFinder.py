@@ -18,17 +18,26 @@ def establishSession():
 
 def getDistanceMatrix(origin, destinations):
     mapsApi = googlemaps.Client(key=googleMapsApiKey)
-    destinationAddresses = map(lambda x: f'{x.address}, {x.zip}', destinations) # TODO: include city?
-    matrix = mapsApi.distance_matrix(origin, list(destinationAddresses), mode="driving", units="imperial", departure_time="now")
-    distances = matrix["rows"][0]["elements"]
+    destinationAddresses = map(lambda x: f'{x.address}, {x.zip}', destinations) # consider including city
 
-    for i in range(len(distances)):
-        if distances[i]["status"] == "OK":
-            destinations[i].distanceInFeet = distances[i]["distance"]["value"]
-            destinations[i].timeInSeconds = distances[i]["duration"]["value"]
-            destinations[i].timeWithTrafficInSeconds = distances[i]["duration_in_traffic"]["value"]
+    def chunks(lst, n):
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+
+    # Distance matrix has a limit of 25 destinations per request
+    all_distances = []
+    for batch in chunks(list(destinationAddresses), 25):
+        matrix = mapsApi.distance_matrix(origin, list(batch), mode="driving", units="imperial", departure_time="now")
+        distances = matrix["rows"][0]["elements"]
+        all_distances.extend(distances)
+
+    for i in range(len(all_distances)):
+        if all_distances[i]["status"] == "OK":
+            destinations[i].distanceInFeet = all_distances[i]["distance"]["value"]
+            destinations[i].timeInSeconds = all_distances[i]["duration"]["value"]
+            destinations[i].timeWithTrafficInSeconds = all_distances[i]["duration_in_traffic"]["value"]
         else:
-            logging.warning(f"Distance matrix status: {distances[i]['status']} for {destinations[i].address}")
+            logging.warning(f"Distance matrix status: {all_distances[i]['status']} for {destinations[i].address}")
 
     sortedDistances = sorted(destinations, key=lambda x: (x.timeInSeconds is None, x.timeInSeconds))
     return sortedDistances
