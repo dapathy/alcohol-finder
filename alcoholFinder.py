@@ -49,5 +49,6 @@ def queryProduct(itemCode):
         city = row.select_one('td:nth-of-type(2)').text.strip()
         address = row.select_one('td:nth-of-type(3)').text.strip()
         zip = row.select_one('td:nth-of-type(4)').text.strip()
-        locations.append(ProductLocation(city, address, zip, quantity))
+        phoneNumber = row.select_one('td:nth-of-type(5)').text.strip()
+        locations.append(ProductLocation(city, address, zip, quantity, phoneNumber))
     return locations
