@@ -25,6 +25,10 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
     locationsWithDistances = alcolholFinder.getDistanceMatrix(origin, locations)
     email_content = "Here are the locations with the product and their distances:\n\n"
     for location in locationsWithDistances:
+        # Skip locations that are more than an hour away
+        if location.timeInSeconds > 3600:
+            continue
+
         email_content += f"Address: {location.address}\n"
         email_content += f"Travel time: {round(location.timeInSeconds / 60, 1)} min\n"
         email_content += f"Travel time w/ traffic: {round(location.timeWithTrafficInSeconds / 60, 1)} min\n"
