@@ -55,8 +55,9 @@ def queryProduct(itemCode):
     soup = BeautifulSoup(response.text, 'html.parser')
     locations = []
     for row in soup.find_all(class_=re.compile(r'\b(alt-row|row)\b')):
-        quantity = row.select_one('td:nth-of-type(7)').text.strip()
-        if (quantity == '0'):
+        quantity = int(row.select_one('td:nth-of-type(7)').text.strip())
+        # skip low quantity items
+        if (quantity <= 1):
             continue
         city = row.select_one('td:nth-of-type(2)').text.strip()
         address = row.select_one('td:nth-of-type(3)').text.strip()
