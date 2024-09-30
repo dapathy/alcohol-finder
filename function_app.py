@@ -12,23 +12,30 @@ run_on_startup = 'pydevd' in sys.modules # Check if the debugger is attached
 @app.function_name(name="findAlcoholScheduled")
 @app.timer_trigger(schedule="0 30 16 * * *", arg_name="myTimer", run_on_startup=run_on_startup, use_monitor=False) 
 def timer_trigger(myTimer: func.TimerRequest) -> None:
-    itemCode = os.environ['ITEM_CODE']
+    itemCodes = os.environ['ITEM_CODES'].split(",")
     origin = os.environ['ORIGIN_ADDRESS']
 
     alcolholFinder.establishSession()
+
+    for itemCode in itemCodes:
+        findAlcohol(origin, itemCode)
+
+def findAlcohol(origin: str, itemCode: str) -> None:
     product = alcolholFinder.queryProduct(itemCode)
     if (len(product.locations) == 0):
-        logging.info("No results found")
-        sendEmail("No results found")
+        logging.info(f"No results found for {itemCode}")
         return
-    
+
     locationsWithDistances = alcolholFinder.getDistanceMatrix(origin, product.locations)
+
+    # Skip locations that are more than 35 min away
+    locationsWithDistances = list(filter(lambda x: x.timeInSeconds < 2100, locationsWithDistances))
+    if (len(locationsWithDistances) == 0):
+        logging.info(f"No locations found within 35 min for {product.name}")
+        return
+
     email_content = f"Here are the locations with {product.name} and their distances:\n\n"
     for location in locationsWithDistances:
-        # Skip locations that are more than 35 min away
-        if location.timeInSeconds > 2100:
-            continue
-
         email_content += f"Address: {location.address}\n"
         email_content += f"Travel time: {round(location.timeInSeconds / 60, 1)} min\n"
         email_content += f"Travel time w/ traffic: {round(location.timeWithTrafficInSeconds / 60, 1)} min\n"
