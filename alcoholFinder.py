@@ -18,7 +18,8 @@ def establishSession():
 
 def getDistanceMatrix(origin, destinations):
     mapsApi = googlemaps.Client(key=googleMapsApiKey)
-    destinationAddresses = map(lambda x: f'{x.address}, {x.zip}', destinations) # consider including city
+    stateCode = "OR"    # Hardcoded since this app is only for Oregon
+    destinationAddresses = map(lambda x: f'{x.address}, {x.city} {stateCode} {x.zip}', destinations)
 
     def chunks(lst, n):
         for i in range(0, len(lst), n):
