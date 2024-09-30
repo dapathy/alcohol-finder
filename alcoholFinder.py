@@ -6,7 +6,7 @@ import googlemaps
 import logging
 from typing import Generator, List
 
-from productLocation import ProductLocation
+from productLocation import ProductLocation, Product
 
 googleMapsApiKey = os.environ['GOOGLE_MAPS_API_KEY']
 session = requests.Session()
@@ -44,7 +44,7 @@ def getDistanceMatrix(origin: str, destinations: List[ProductLocation]) -> List[
     sortedDistances = sorted(destinations, key=lambda x: (x.timeInSeconds is None, x.timeInSeconds))
     return sortedDistances
 
-def queryProduct(itemCode: str) -> List[ProductLocation]:
+def queryProduct(itemCode: str) -> Product:
     url = f"http://www.oregonliquorsearch.com/servlet/FrontController?radiusSearchParam=0&productSearchParam={itemCode}&locationSearchParam=portland&btnSearch=Search&view=global&action=search"
     response = session.get(url, allow_redirects=True)
     logging.info(f"Query response status code: {response.status_code}")
@@ -66,4 +66,7 @@ def queryProduct(itemCode: str) -> List[ProductLocation]:
         zip = row.select_one('td:nth-of-type(4)').text.strip()
         phoneNumber = row.select_one('td:nth-of-type(5)').text.strip()
         locations.append(ProductLocation(city, address, zip, quantity, phoneNumber))
-    return locations
+    
+    name = len(locations) > 0 and soup.select_one('#product-desc h2').text.strip() or "Unknown"
+
+    return Product(itemCode, name, locations)
