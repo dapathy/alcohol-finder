@@ -37,7 +37,7 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
         email_content += "-" * 40 + "\n"
     sendEmail(email_content)
 
-def sendEmail(email_content):
+def sendEmail(email_content) -> None:
     sendgridClient = sendgrid.SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
     fromAddress = sendgrid.helpers.mail.Email(os.environ['SENDGRID_FROM_ADDRESS'])
     toAddress = sendgrid.helpers.mail.To(os.environ['SENDGRID_TO_ADDRESS'])

@@ -4,24 +4,25 @@ import requests
 from bs4 import BeautifulSoup
 import googlemaps
 import logging
+from typing import Generator, List
 
 from productLocation import ProductLocation
 
 googleMapsApiKey = os.environ['GOOGLE_MAPS_API_KEY']
 session = requests.Session()
 
-def establishSession():
+def establishSession() -> None:
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     data = {'btnSubmit': "I'm 21 or older"}
     response = session.post("http://www.oregonliquorsearch.com/servlet/WelcomeController", allow_redirects=True, headers=headers, data=data)
     logging.info(f"Status code after age verification: {response.status_code}")
 
-def getDistanceMatrix(origin, destinations):
+def getDistanceMatrix(origin: str, destinations: List[ProductLocation]) -> List[ProductLocation]:
     mapsApi = googlemaps.Client(key=googleMapsApiKey)
     stateCode = "OR"    # Hardcoded since this app is only for Oregon
     destinationAddresses = map(lambda x: f'{x.address}, {x.city} {stateCode} {x.zip}', destinations)
 
-    def chunks(lst, n):
+    def chunks(lst: List[str], n: int) -> Generator[List[str], None, None]:
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
 
@@ -43,7 +44,7 @@ def getDistanceMatrix(origin, destinations):
     sortedDistances = sorted(destinations, key=lambda x: (x.timeInSeconds is None, x.timeInSeconds))
     return sortedDistances
 
-def queryProduct(itemCode):
+def queryProduct(itemCode: str) -> List[ProductLocation]:
     url = f"http://www.oregonliquorsearch.com/servlet/FrontController?radiusSearchParam=0&productSearchParam={itemCode}&locationSearchParam=portland&btnSearch=Search&view=global&action=search"
     response = session.get(url, allow_redirects=True)
     logging.info(f"Query response status code: {response.status_code}")
