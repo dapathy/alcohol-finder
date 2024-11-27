@@ -15,9 +15,8 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
     itemCodes = os.environ['ITEM_CODES'].split(",")
     origin = os.environ['ORIGIN_ADDRESS']
 
-    alcolholFinder.establishSession()
-
     for itemCode in itemCodes:
+        alcolholFinder.establishSession()
         findAlcohol(origin, itemCode)
 
 def findAlcohol(origin: str, itemCode: str) -> None:
