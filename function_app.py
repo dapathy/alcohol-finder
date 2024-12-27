@@ -27,15 +27,16 @@ def findAlcohol(origin: str, itemCode: str) -> None:
 
     locationsWithDistances = alcolholFinder.getDistanceMatrix(origin, product.locations)
 
-    # Skip locations that are more than 35 min away
-    locationsWithDistances = list(filter(lambda x: x.timeInSeconds < 2100, locationsWithDistances))
+    # Skip locations that are more than 30 min away
+    locationsWithDistances = list(filter(lambda x: x.timeInSeconds < 1800, locationsWithDistances))
     if (len(locationsWithDistances) == 0):
-        logging.info(f"No locations found within 35 min for {product.name}")
+        logging.info(f"No locations found within 30 min for {product.name}")
         return
 
     email_content = f"Here are the locations with {product.name} and their distances:\n\n"
     for location in locationsWithDistances:
-        email_content += f"Address: {location.address}\n"
+        email_content += f"{location.address}\n"
+        email_content += f"{location.city}, OR {location.zip}\n"
         email_content += f"Travel time: {round(location.timeInSeconds / 60, 1)} min\n"
         email_content += f"Travel time w/ traffic: {round(location.timeWithTrafficInSeconds / 60, 1)} min\n"
         email_content += f"Stock: {location.quantity}\n"
