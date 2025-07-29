@@ -6,4 +6,4 @@ azure-functions
 requests
 beautifulsoup4
 googlemaps
-sendgrid
+azure-communication-email

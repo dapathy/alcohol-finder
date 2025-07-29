@@ -1,8 +1,7 @@
 import logging
 import os
 import sys
-import sendgrid
-import sendgrid.helpers.mail
+from azure.communication.email import EmailClient
 import azure.functions as func
 import alcoholFinder as alcolholFinder
 
@@ -45,11 +44,22 @@ def findAlcohol(origin: str, itemCode: str) -> None:
     sendEmail(product.name, email_content)
 
 def sendEmail(subject: str, email_content: str) -> None:
-    sendgridClient = sendgrid.SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
-    fromAddress = sendgrid.helpers.mail.Email(os.environ['SENDGRID_FROM_ADDRESS'])
-    toAddress = sendgrid.helpers.mail.To(os.environ['SENDGRID_TO_ADDRESS'])
-    subject = f"Alcohol Finder Results: {subject}"
-    content = sendgrid.helpers.mail.Content("text/plain", email_content)
-    mail = sendgrid.helpers.mail.Mail(fromAddress, toAddress, subject, content)
-    response = sendgridClient.client.mail.send.post(request_body=mail.get())
-    logging.info(f"Email response status code: {response.status_code}")
+    emailClient = EmailClient.from_connection_string(os.environ['AZURE_COMMUNICATION_CONNECTION_STRING'])
+    emailMessage = {
+        "senderAddress": os.environ['EMAIL_FROM_ADDRESS'],
+        "content": {
+            "subject": f"Alcohol Finder Results: {subject}",
+            "plainText": email_content
+        },
+        "recipients": {
+            "to": [
+                {
+                    "address": os.environ['EMAIL_TO_ADDRESS'],
+                    "displayName": "Alcohol Finder Results"
+                }
+            ]
+        }
+    }
+    poller = emailClient.begin_send(emailMessage)
+    result = poller.result()
+    logging.info(f"Email sent with status: {result['status']}")
