@@ -67,6 +67,10 @@ def queryProduct(itemCode: str) -> Product:
         phoneNumber = row.select_one('td:nth-of-type(5)').text.strip()
         locations.append(ProductLocation(city, address, zip, quantity, phoneNumber))
     
-    name = len(locations) > 0 and soup.select_one('#product-desc h2').text.strip() or "Unknown"
+    if len(locations) > 0:
+        full_description = soup.select_one('#product-desc h2').text.strip()
+        name = full_description.split(':', 1)[-1].strip() if ':' in full_description else full_description
+    else:
+        name = "Unknown"
 
     return Product(itemCode, name, locations)
